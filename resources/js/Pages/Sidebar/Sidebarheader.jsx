@@ -1,14 +1,39 @@
 import { Link, useParams } from 'react-router-dom'
 import Useravatar from '../Profile/Useravatar'
 import { MessageContext } from '../Dashboard';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 
 const Sidebarheader = ({ users }) => {
+    const [userMessages, setUserMessages] = useState(users);
     const { id } = useParams();
     const messages = useContext( MessageContext );
     console.log(users);
     const activeUsersCount = Object.values(users).length;
+
+    useEffect(() => {
+        if (Array.isArray(users)) {
+            setUserMessages(users);
+        }
+    }, [users]);
+
+    const handleReadMessage = (userId, messageId) => {
+        setUserMessages(prevState => {
+            return prevState.map(user => {
+                if (user.id === userId) {
+                    const updatedMessages = user.messages.map(message => {
+                        if (message.id === messageId) {
+                            return { ...message, is_read: 1 };
+                        }
+                        return message;
+                    });
+                    return { ...user, messages: updatedMessages };
+                }
+                return user;
+            });
+        });
+    };
+
   return (
     <>
         <div
@@ -21,23 +46,29 @@ const Sidebarheader = ({ users }) => {
                 <div className="flex flex-row items-center justify-between text-xs">
                         <span className="font-bold">Active Conversations</span>
                         <span
-                        className="flex items-center justify-center
-                        bg-gray-300 h-4 w-4 rounded-full"
-                        >{activeUsersCount}</span>
+                            className="flex items-center justify-center
+                            bg-gray-300 h-4 w-4 rounded-full"
+                        >
+                            {activeUsersCount}
+                        </span>
                 </div>
 
-                {Object.values(users).map(user => (
-                <Link key={user.id} className="ml-2 text-sm font-semibold" to={`/dashboard/${user.id}`}>
+                {userMessages.map(user => (
+                <Link
+                    key={user.id}
+                    className="ml-2 text-sm font-semibold"
+                    to={`/dashboard/${user.id}`}
+                    onClick={() => handleReadMessage(user.id)}
+                >
                     <div className="flex flex-col space-y-1 mx-2 overflow-y-auto">
                     <button className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
                         <Useravatar userName={user.name} />
                         <div className="ml-2 text-sm font-normal">
-                        {/* Conditionally render based on is_read */}
-                        {user.messages?.some(message => !message.is_read) ? (
-                            <h2 className='font-semibold'>{user.name}</h2>
-                        ) : (
-                            <span>{user.name}</span>
-                        )}
+                            {Array.isArray(user.messages) && user.messages.some(message => message.is_read === 1) ? (
+                            <h2>{user.name}</h2>
+                            ) : (
+                                <h2 className='font-semibold'>{user.name}</h2>
+                            )}
                         </div>
                     </button>
                     </div>
