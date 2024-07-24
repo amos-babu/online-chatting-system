@@ -3,7 +3,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import Sidebar from './Sidebar';
 import Messagebar from './Messagebar';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 export const MessageContext = createContext();
 

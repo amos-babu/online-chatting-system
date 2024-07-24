@@ -14,30 +14,30 @@ class MessageController extends Controller
 {
 
     public function userDisplay()
-        {
-            $loggedInUser = Auth::user();
-            $users = User::all();
-            $filteredUsers = $users->reject(function ($user) use ($loggedInUser) {
-                return $user->id === $loggedInUser->id;
-            });
+    {
+        $loggedInUser = Auth::user();
+        $users = User::all();
+        $filteredUsers = $users->reject(function ($user) use ($loggedInUser) {
+            return $user->id === $loggedInUser->id;
+        });
 
-            return Inertia::render('Dashboard', [
-                'users' => $filteredUsers,
-            ]);
-        }
+        return Inertia::render('Dashboard', [
+            'users' => $filteredUsers,
+        ]);
+    }
 
     /**
      * Display a listing of the resource.
      */
 
-    public function sendMessage( Request $request )
+    public function sendMessage(Request $request)
     {
-        $data = $request -> validate([
+        $data = $request->validate([
             'message' => 'required',
             'recipient_id' => 'required|exists:users,id'
         ]);
 
-        $senderID =auth()->id();
+        $senderID = auth()->id();
 
 
         $message = Message::create([

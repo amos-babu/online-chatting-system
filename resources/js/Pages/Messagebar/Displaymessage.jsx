@@ -1,12 +1,20 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Useravatar from '../Profile/Useravatar'
+import { useParams } from 'react-router-dom'
 
 const Displaymessage = ({ currentUser, messages, users }) => {
+    const [userMessage, setUserMessage] = useState([]);
+
+    useEffect(() => {
+        if (Array.isArray(messages)) {
+            setUserMessage(messages);
+        }
+    }, [messages]);
   return (
     <>
     <div className="flex flex-col h-full overflow-x-auto mb-4">
             <div className="flex flex-col h-full">
-            { messages?.map(message =>
+            { userMessage.map(message =>
               <div key={message.id} className="grid grid-cols-12 gap-y-2">
                 {message.recipient_id === currentUser.id ? (
                 <div className="col-start-1 col-end-8 p-3 rounded-lg">
