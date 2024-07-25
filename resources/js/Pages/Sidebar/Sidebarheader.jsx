@@ -1,32 +1,39 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Useravatar from '../Profile/Useravatar';
 import { MessageContext } from '../Dashboard';
+import { useChat } from '../contexts/ChatContext';
 
-const Sidebarheader = ({ users }) => {
-    const [userMessages, setUserMessages] = useState([]);
-    const [selectedUserId, setSelectedUserId] = useState(null);
+const Sidebarheader = () => {
+    const [activeUsers, setActiveUsers] = useState([]);
     const { id } = useParams();
-    const messages = useContext(MessageContext);
+    const { users } = useContext(MessageContext);
+    const { handleClick, selectedUserId } = useChat();
 
     const activeUsersCount = Object.keys(users).length;
 
     useEffect(() => {
         if (typeof users === 'object' && users !== null) {
             const userArray = Object.values(users);
-            setUserMessages(userArray);
+            setActiveUsers(userArray);
+
         } else {
             console.error('users is not a valid object');
         }
     }, [users, id]);
 
     const handleReadMessage = (userId) => {
-        setUserMessages(prevState => {
+        setActiveUsers(prevState => {
             return prevState.map(user => {
                 if (user.id === userId) {
-                    const updatedMessages = user.messages.map(message => {
+
+                    //ensure that user.messages is an array
+
+                    const updatedMessages = Array.isArray(user.messages)
+                    ? user.messages.map(message => {
                         return { ...message, is_read: 1 };
-                    });
+                    })
+                    : [];  // If messages is not an array, return an empty array
                     return { ...user, messages: updatedMessages };
                 }
                 return user;
@@ -34,10 +41,10 @@ const Sidebarheader = ({ users }) => {
         });
     };
 
-    const handleClick = (userId) => {
-        handleReadMessage(userId);
-        setSelectedUserId(userId);
-    };
+    // const handleClick = (userId) => {
+    //     handleReadMessage(userId);
+    //     setSelectedUserId(userId);
+    // };
 
     return (
         <div className="hidden md:flex fixed left-0 top-0 h-full flex-col py-8 pl-6 pr-2 w-64 bg-white overflow-y-auto flex-shrink-0">
@@ -50,23 +57,21 @@ const Sidebarheader = ({ users }) => {
                     </span>
                 </div>
                 <div className="flex flex-col space-y-1 mx-2 overflow-y-auto">
-                    {userMessages.map(user => (
-                        <div
+                    {activeUsers.map(user => (
+
+                        <Link
                             key={user.id}
                             className={`ml-2 text-sm font-semibold `}
+                            to={`/dashboard/${user.id}`}
                             onClick={() => handleClick(user.id)}
                         >
                             <button className={`flex flex-row items-center hover:bg-gray-100 ${selectedUserId === user.id ? 'bg-gray-200' : ''} rounded-xl p-2`}>
                                 <Useravatar userName={user.name} />
                                 <div className="ml-2 text-sm font-normal">
-                                    {Array.isArray(user.messages) && user.messages.some(message => message.is_read === 1) ? (
-                                        <h2>{user.name}</h2>
-                                    ) : (
                                         <h2 className='font-semibold'>{user.name}</h2>
-                                    )}
                                 </div>
                             </button>
-                        </div>
+                        </Link>
                     ))}
                 </div>
                 <div className="flex flex-row items-center justify-between text-xs mt-6">

@@ -26,7 +26,7 @@ export default function Dashboard({ auth, users, currentUser, recipientId, messa
                                 ☰
                         </button>
                         <div className="flex flex-row h-full w-full">
-                                <MessageContext.Provider value={ messages }>
+                                <MessageContext.Provider value={{ messages, users }}>
                                     <Sidebar
                                         users={ users }
                                         recipientId={ recipientId }
